@@ -5,6 +5,7 @@ import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
+import edu.byu.cs.tweeter.model.net.response.FollowToggleResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.util.FakeData;
 
@@ -59,6 +60,15 @@ public class FollowDAO {
         }
 
         return new FollowingResponse(responseFollowees, hasMorePages);
+    }
+
+
+    public FollowToggleResponse follow() {
+        return new FollowToggleResponse(true);
+    }
+
+    public FollowToggleResponse unfollow() {
+        return new FollowToggleResponse(true);
     }
 
     /**

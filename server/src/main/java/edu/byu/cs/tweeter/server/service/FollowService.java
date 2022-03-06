@@ -1,6 +1,8 @@
 package edu.byu.cs.tweeter.server.service;
 
+import edu.byu.cs.tweeter.model.net.request.FollowToggleRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
+import edu.byu.cs.tweeter.model.net.response.FollowToggleResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.server.dao.FollowDAO;
 
@@ -24,7 +26,15 @@ public class FollowService {
         } else if(request.getLimit() <= 0) {
             throw new RuntimeException("[BadRequest] Request needs to have a positive limit");
         }
-        return getFollowingDAO().getFollowees(request);
+        return getFollowDAO().getFollowees(request);
+    }
+
+    public FollowToggleResponse follow(FollowToggleRequest request) {
+        return getFollowDAO().follow();
+    }
+
+    public FollowToggleResponse unfollow(FollowToggleRequest request) {
+        return getFollowDAO().unfollow();
     }
 
     /**
@@ -34,7 +44,7 @@ public class FollowService {
      *
      * @return the instance.
      */
-    FollowDAO getFollowingDAO() {
+    FollowDAO getFollowDAO() {
         return new FollowDAO();
     }
 }
