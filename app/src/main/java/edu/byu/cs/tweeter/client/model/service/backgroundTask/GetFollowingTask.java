@@ -28,7 +28,7 @@ public class GetFollowingTask extends PagedUserTask {
     @Override
     protected Pair<List<User>, Boolean> getItems() {
         List<User> followees = null;
-        Boolean hasMorePages = null;
+        Boolean hasMorePages = false;
         try {
             String targetUserAlias = getTargetUser() == null ? null : getTargetUser().getAlias();
             String lastFolloweeAlias = getLastItem() == null ? null : getLastItem().getAlias();
