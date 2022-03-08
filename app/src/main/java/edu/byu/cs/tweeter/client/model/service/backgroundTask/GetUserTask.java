@@ -2,14 +2,19 @@ package edu.byu.cs.tweeter.client.model.service.backgroundTask;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.request.GetFollowersCountRequest;
+import edu.byu.cs.tweeter.model.net.response.GetFollowersCountResponse;
 
 /**
  * Background task that returns the profile for a specified user.
  */
 public class GetUserTask extends AuthenticatedTask {
+    private static final String URL_PATH = "/getuser";
+    private static final String LOG_TAG = "getUser";
 
     /**
      * Alias (or handle) for user whose profile is being retrieved.
@@ -25,12 +30,22 @@ public class GetUserTask extends AuthenticatedTask {
 
     @Override
     protected void runTask() {
-        user = getUser();
+        // We could do this from the presenter, without a task and handler, but we will
+        // eventually access the database from here when we aren't using dummy data.
+        try {
+            GetFollowersCountRequest request = new GetFollowersCountRequest(getAuthToken(), getTargetUser());
+            GetFollowersCountResponse response = getServerFacade().getFollowersCount(request, URL_PATH);
 
-        // Call sendSuccessMessage if successful
-        sendSuccessMessage();
-        // or call sendFailedMessage if not successful
-        // sendFailedMessage()
+            if(response.isSuccess()) {
+                user = response.getUser();
+            }
+            else {
+                sendFailedMessage(response.getMessage());
+            }
+        } catch (Exception ex) {
+            Log.e(LOG_TAG, ex.getMessage(), ex);
+            sendExceptionMessage(ex);
+        }
     }
 
     @Override

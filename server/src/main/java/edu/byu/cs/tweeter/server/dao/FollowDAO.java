@@ -9,6 +9,8 @@ import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
 import edu.byu.cs.tweeter.model.net.response.FollowToggleResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
+import edu.byu.cs.tweeter.model.net.response.GetFollowersCountResponse;
+import edu.byu.cs.tweeter.model.net.response.GetFollowingCountResponse;
 import edu.byu.cs.tweeter.util.FakeData;
 
 /**
@@ -96,6 +98,14 @@ public class FollowDAO {
 
     public FollowToggleResponse unfollow() {
         return new FollowToggleResponse(true);
+    }
+
+    public GetFollowersCountResponse getFollowersCount() {
+        return new GetFollowersCountResponse(20);
+    }
+
+    public GetFollowingCountResponse getFollowingCount() {
+        return new GetFollowingCountResponse(20);
     }
 
     /**
