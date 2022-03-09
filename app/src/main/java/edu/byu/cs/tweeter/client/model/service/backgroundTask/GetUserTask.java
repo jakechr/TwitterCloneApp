@@ -7,7 +7,9 @@ import android.util.Log;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersCountRequest;
+import edu.byu.cs.tweeter.model.net.request.GetUserRequest;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersCountResponse;
+import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
 
 /**
  * Background task that returns the profile for a specified user.
@@ -33,11 +35,12 @@ public class GetUserTask extends AuthenticatedTask {
         // We could do this from the presenter, without a task and handler, but we will
         // eventually access the database from here when we aren't using dummy data.
         try {
-            GetFollowersCountRequest request = new GetFollowersCountRequest(getAuthToken(), getTargetUser());
-            GetFollowersCountResponse response = getServerFacade().getFollowersCount(request, URL_PATH);
+            GetUserRequest request = new GetUserRequest(getAuthToken(), alias);
+            GetUserResponse response = getServerFacade().getUser(request, URL_PATH);
 
             if(response.isSuccess()) {
                 user = response.getUser();
+                sendSuccessMessage();
             }
             else {
                 sendFailedMessage(response.getMessage());
@@ -51,9 +54,5 @@ public class GetUserTask extends AuthenticatedTask {
     @Override
     protected void loadSuccessBundle(Bundle msgBundle) {
         msgBundle.putSerializable(SIMPLE_ITEM_KEY, user);
-    }
-
-    private User getUser() {
-        return getFakeData().findUserByAlias(alias);
     }
 }

@@ -2,9 +2,11 @@ package edu.byu.cs.tweeter.server.service;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.request.GetUserRequest;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
 import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
 import edu.byu.cs.tweeter.model.net.response.AuthenticationResponse;
+import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
 import edu.byu.cs.tweeter.server.dao.UserDAO;
 import edu.byu.cs.tweeter.util.FakeData;
 
@@ -36,9 +38,14 @@ public class UserService {
         return getUserDao().register(request);
     }
 
+    public GetUserResponse getUser(GetUserRequest request) {
+        if(request.getUserAlias() == null){
+            throw new RuntimeException("[BadRequest] Missing a user alias");
+        }
+        return getUserDao().getUser(request);
+    }
+
     private UserDAO getUserDao() {
         return new UserDAO();
     }
-
-
 }

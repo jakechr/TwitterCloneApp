@@ -2,6 +2,7 @@ package edu.byu.cs.tweeter.server.dao;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.FollowersRequest;
@@ -11,6 +12,7 @@ import edu.byu.cs.tweeter.model.net.response.FollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersCountResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingCountResponse;
+import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.util.FakeData;
 
 /**
@@ -106,6 +108,10 @@ public class FollowDAO {
 
     public GetFollowingCountResponse getFollowingCount() {
         return new GetFollowingCountResponse(20);
+    }
+
+    public IsFollowerResponse isFollower() {
+        return new IsFollowerResponse(new Random().nextInt() > 0);
     }
 
     /**

@@ -5,11 +5,13 @@ import edu.byu.cs.tweeter.model.net.request.FollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersCountRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingCountRequest;
+import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
 import edu.byu.cs.tweeter.model.net.response.FollowToggleResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersCountResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingCountResponse;
+import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.server.dao.FollowDAO;
 
 /**
@@ -70,6 +72,17 @@ public class FollowService {
             throw new RuntimeException("[BadRequest] Request needs to have a user alias");
         }
         return getFollowDAO().getFollowingCount();
+    }
+
+    public IsFollowerResponse isFollower(IsFollowerRequest request) { // IsFollower not working, thinking it's null
+        System.out.println(request.toString());
+        if(request.getFollowee() == null) {
+            throw new RuntimeException("[BadRequest] Request needs to have a followee");
+        }
+        if(request.getFollower() == null) {
+            throw new RuntimeException("[BadRequest] Request needs to have a follower");
+        }
+        return getFollowDAO().isFollower();
     }
 
     /**
