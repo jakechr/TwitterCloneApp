@@ -71,7 +71,6 @@ public class Status implements Serializable {
         Status status = (Status) o;
         return Objects.equals(post, status.post) &&
                 Objects.equals(user, status.user) &&
-                Objects.equals(datetime, status.datetime) &&
                 Objects.equals(mentions, status.mentions) &&
                 Objects.equals(urls, status.urls);
     }
