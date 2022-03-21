@@ -6,9 +6,15 @@ import edu.byu.cs.tweeter.model.net.request.StoryRequest;
 import edu.byu.cs.tweeter.model.net.response.FeedResponse;
 import edu.byu.cs.tweeter.model.net.response.PostStatusResponse;
 import edu.byu.cs.tweeter.model.net.response.StoryResponse;
-import edu.byu.cs.tweeter.server.dao.StatusDAO;
+import edu.byu.cs.tweeter.server.dao.IDAOFactory;
+import edu.byu.cs.tweeter.server.dao.IStatusDAO;
 
 public class StatusService {
+    IDAOFactory daoFactory;
+
+    public StatusService(IDAOFactory daoFactory) {
+        this.daoFactory = daoFactory;
+    }
 
     public StoryResponse getStory(StoryRequest request) {
         if(request.getUserAlias() == null) {
@@ -35,7 +41,7 @@ public class StatusService {
         return getStatusDAO().postStatus(request);
     }
 
-    private StatusDAO getStatusDAO() {
-        return new StatusDAO();
+    private IStatusDAO getStatusDAO() {
+        return daoFactory.getStatusDAO();
     }
 }

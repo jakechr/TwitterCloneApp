@@ -1,4 +1,4 @@
-package edu.byu.cs.tweeter.server.dao;
+package edu.byu.cs.tweeter.server.dao.dynamodb;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,26 +13,10 @@ import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersCountResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingCountResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
+import edu.byu.cs.tweeter.server.dao.IFollowDAO;
 import edu.byu.cs.tweeter.util.FakeData;
 
-/**
- * A DAO for accessing 'following' data from the database.
- */
-public class FollowDAO {
-
-    /**
-     * Gets the count of users from the database that the user specified is following. The
-     * current implementation uses generated data and doesn't actually access a database.
-     *
-     * @param follower the User whose count of how many following is desired.
-     * @return said count.
-     */
-    public Integer getFolloweeCount(User follower) {
-        // TODO: uses the dummy data.  Replace with a real implementation.
-        assert follower != null;
-        return getDummyFollowees().size();
-    }
-
+public class FollowDAODynamo implements IFollowDAO {
     /**
      * Gets the users from the database that the user specified in the request is following. Uses
      * information in the request object to limit the number of followees returned and to return the

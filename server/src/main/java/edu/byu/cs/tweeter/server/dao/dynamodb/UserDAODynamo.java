@@ -1,4 +1,4 @@
-package edu.byu.cs.tweeter.server.dao;
+package edu.byu.cs.tweeter.server.dao.dynamodb;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
@@ -9,9 +9,10 @@ import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
 import edu.byu.cs.tweeter.model.net.response.AuthenticationResponse;
 import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
 import edu.byu.cs.tweeter.model.net.response.LogoutResponse;
+import edu.byu.cs.tweeter.server.dao.IUserDAO;
 import edu.byu.cs.tweeter.util.FakeData;
 
-public class UserDAO {
+public class UserDAODynamo implements IUserDAO {
 
     public AuthenticationResponse login(LoginRequest request) {
         // TODO: Generates dummy data. Replace with a real implementation.

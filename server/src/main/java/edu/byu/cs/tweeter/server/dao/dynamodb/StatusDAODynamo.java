@@ -1,4 +1,4 @@
-package edu.byu.cs.tweeter.server.dao;
+package edu.byu.cs.tweeter.server.dao.dynamodb;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,10 +10,11 @@ import edu.byu.cs.tweeter.model.net.request.StoryRequest;
 import edu.byu.cs.tweeter.model.net.response.FeedResponse;
 import edu.byu.cs.tweeter.model.net.response.PostStatusResponse;
 import edu.byu.cs.tweeter.model.net.response.StoryResponse;
+import edu.byu.cs.tweeter.server.dao.IStatusDAO;
 import edu.byu.cs.tweeter.util.FakeData;
 
-public class StatusDAO {
-    
+public class StatusDAODynamo implements IStatusDAO {
+
     public StoryResponse getStory(StoryRequest request) {
         // TODO: Generates dummy data. Replace with a real implementation.
         assert request.getLimit() > 0;
