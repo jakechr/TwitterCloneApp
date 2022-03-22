@@ -2,7 +2,9 @@ package edu.byu.cs.tweeter.server.dao.dynamodb;
 
 import static edu.byu.cs.tweeter.server.dao.dynamodb.BaseDAODynamo.dynamoDB;
 
+import com.amazonaws.services.dynamodbv2.document.DeleteItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.KeyAttribute;
 import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.Table;
 
@@ -17,16 +19,17 @@ import java.util.Map;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.request.LogoutRequest;
+import edu.byu.cs.tweeter.model.net.response.LogoutResponse;
 import edu.byu.cs.tweeter.server.dao.IAuthTokenDAO;
 
 public class AuthTokenDAODynamo implements IAuthTokenDAO {
     final String tableName = "AuthToken";
+    Table table = dynamoDB.getTable(tableName);
 
     @Override
     public AuthToken generateAuthToken(User user) {
         AuthToken authToken = getNewAuthToken();
-
-        Table table = dynamoDB.getTable(tableName);
 
         try {
             System.out.println("Adding a new item...");
@@ -40,6 +43,24 @@ public class AuthTokenDAODynamo implements IAuthTokenDAO {
 
         } catch (Exception e) {
             System.err.println("Unable to add item: " + authToken.getToken());
+            System.err.println(e.getMessage());
+            throw new RuntimeException("[DBError] AuthToken generation failed");
+        }
+    }
+
+    @Override
+    public LogoutResponse logout(LogoutRequest request) {
+        try {
+            System.out.println("Clearing out old authToken");
+            DeleteItemOutcome outcome = table
+                    .deleteItem(new KeyAttribute("token", request.getAuthToken().getToken()));
+
+            System.out.println("DeleteItem succeeded:\n" + outcome.getDeleteItemResult().toString());
+
+            return new LogoutResponse(true);
+
+        } catch (Exception e) {
+            System.err.println("Unable to add item: " + request.getAuthToken().getToken());
             System.err.println(e.getMessage());
             throw new RuntimeException("[DBError] AuthToken generation failed");
         }

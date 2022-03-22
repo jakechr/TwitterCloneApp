@@ -66,7 +66,7 @@ public class UserService {
     }
 
     public LogoutResponse logout(LogoutRequest request) {
-        return getUserDao().logout(request);
+        return daoFactory.getAuthTokenDAO().logout(request);
     }
 
     private IUserDAO getUserDao() {

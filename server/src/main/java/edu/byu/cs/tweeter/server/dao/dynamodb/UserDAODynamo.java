@@ -16,11 +16,15 @@ import java.util.Base64;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.DataAccessException;
+import edu.byu.cs.tweeter.model.net.request.GetFollowersCountRequest;
+import edu.byu.cs.tweeter.model.net.request.GetFollowingCountRequest;
 import edu.byu.cs.tweeter.model.net.request.GetUserRequest;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
 import edu.byu.cs.tweeter.model.net.request.LogoutRequest;
 import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
 import edu.byu.cs.tweeter.model.net.response.AuthenticationResponse;
+import edu.byu.cs.tweeter.model.net.response.GetFollowersCountResponse;
+import edu.byu.cs.tweeter.model.net.response.GetFollowingCountResponse;
 import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
 import edu.byu.cs.tweeter.model.net.response.LogoutResponse;
 import edu.byu.cs.tweeter.server.dao.IUserDAO;
@@ -28,10 +32,10 @@ import edu.byu.cs.tweeter.util.FakeData;
 
 public class UserDAODynamo extends BaseDAODynamo implements IUserDAO {
     private final String tableName = "User";
+    Table table = dynamoDB.getTable(tableName);
 
+    @Override
     public User login(LoginRequest request) {
-        Table table = dynamoDB.getTable(tableName);
-
         try {
             KeyAttribute itemToGet = new KeyAttribute("user_alias", request.getUsername());
             Item userItem = table.getItem(itemToGet);
@@ -58,6 +62,7 @@ public class UserDAODynamo extends BaseDAODynamo implements IUserDAO {
         }
     }
 
+    @Override
     public User register(RegisterRequest request) {
         // Given at registration
         String password = request.getPassword();
@@ -67,8 +72,6 @@ public class UserDAODynamo extends BaseDAODynamo implements IUserDAO {
 
         // Store this in the database
         String securePassword = getSecurePassword(password, salt);
-
-        Table table = dynamoDB.getTable(tableName);
 
         try {
             System.out.println("Adding a new item...");
@@ -95,8 +98,32 @@ public class UserDAODynamo extends BaseDAODynamo implements IUserDAO {
         return new GetUserResponse(getFakeData().findUserByAlias(request.getUserAlias()));
     }
 
-    public LogoutResponse logout(LogoutRequest request) {
-        return new LogoutResponse(true);
+    @Override
+    public GetFollowersCountResponse getFollowersCount(GetFollowersCountRequest request) {
+        try {
+            KeyAttribute itemToGet = new KeyAttribute("user_alias", request.getTargetUser().getAlias());
+            Item userItem = table.getItem(itemToGet);
+            int followersCount = userItem.getInt("followers_count");
+
+            return new GetFollowersCountResponse(followersCount);
+        }
+        catch (Exception e) {
+            throw new RuntimeException("[DBError] Failed to get followers count");
+        }
+    }
+
+    @Override
+    public GetFollowingCountResponse getFollowingCount(GetFollowingCountRequest request) {
+        try {
+            KeyAttribute itemToGet = new KeyAttribute("user_alias", request.getTargetUser().getAlias());
+            Item userItem = table.getItem(itemToGet);
+            int followingCount = userItem.getInt("following_count");
+
+            return new GetFollowingCountResponse(followingCount);
+        }
+        catch (Exception e) {
+            throw new RuntimeException("[DBError] Failed to get following count");
+        }
     }
 
 

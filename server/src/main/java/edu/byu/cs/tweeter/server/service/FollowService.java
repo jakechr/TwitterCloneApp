@@ -70,14 +70,14 @@ public class FollowService {
         if(request.getTargetUser() == null) {
             throw new RuntimeException("[BadRequest] Request needs to have a user alias");
         }
-        return getFollowDAO().getFollowersCount();
+        return daoFactory.getUserDAO().getFollowersCount(request);
     }
 
     public GetFollowingCountResponse getFollowingCount(GetFollowingCountRequest request) {
         if(request.getTargetUser() == null) {
             throw new RuntimeException("[BadRequest] Request needs to have a user alias");
         }
-        return getFollowDAO().getFollowingCount();
+        return daoFactory.getUserDAO().getFollowingCount(request);
     }
 
     public IsFollowerResponse isFollower(IsFollowerRequest request) { // IsFollower not working, thinking it's null
