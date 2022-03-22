@@ -1,5 +1,9 @@
 package edu.byu.cs.tweeter.server.service;
 
+import java.io.IOException;
+
+import edu.byu.cs.tweeter.model.domain.AuthToken;
+import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.GetUserRequest;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
 import edu.byu.cs.tweeter.model.net.request.LogoutRequest;
@@ -40,7 +44,14 @@ public class UserService {
             throw new RuntimeException("[BadRequest] Missing a profile picture");
         }
 
-        return getUserDao().register(request);
+        request.setImage(daoFactory.getImageDAO().uploadImage(request.getImage(), request.getUsername()));
+
+
+        User user = getUserDao().register(request);
+
+        AuthToken authToken = daoFactory.getAuthTokenDAO().generateAuthToken(user);
+
+        return new AuthenticationResponse(user, authToken);
     }
 
     public GetUserResponse getUser(GetUserRequest request) {

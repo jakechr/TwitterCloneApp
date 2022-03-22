@@ -1,7 +1,10 @@
 package edu.byu.cs.tweeter.server.dao;
 
 public interface IDAOFactory {
-    public IFollowDAO getFollowDAO();
-    public IStatusDAO getStatusDAO();
-    public IUserDAO getUserDAO();
+    IFollowDAO getFollowsDAO();
+    IStatusDAO getStatusDAO();
+    IUserDAO getUserDAO();
+    IFeedDAO getFeedDAO();
+    IAuthTokenDAO getAuthTokenDAO();
+    IImageDAO getImageDAO();
 }

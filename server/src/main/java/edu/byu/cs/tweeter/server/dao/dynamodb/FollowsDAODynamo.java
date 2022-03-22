@@ -16,7 +16,14 @@ import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.server.dao.IFollowDAO;
 import edu.byu.cs.tweeter.util.FakeData;
 
-public class FollowDAODynamo implements IFollowDAO {
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.document.*;
+import com.amazonaws.services.dynamodbv2.model.*;
+import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
+
+public class FollowsDAODynamo implements IFollowDAO {
+
     /**
      * Gets the users from the database that the user specified in the request is following. Uses
      * information in the request object to limit the number of followees returned and to return the
@@ -79,6 +86,7 @@ public class FollowDAODynamo implements IFollowDAO {
 
 
     public FollowToggleResponse follow() {
+
         return new FollowToggleResponse(true);
     }
 

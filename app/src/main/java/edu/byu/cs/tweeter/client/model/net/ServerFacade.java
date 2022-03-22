@@ -58,13 +58,8 @@ public class ServerFacade {
     }
 
     public AuthenticationResponse register(RegisterRequest request, String urlPath) throws IOException, TweeterRemoteException {
-        AuthenticationResponse response = clientCommunicator.doPost(urlPath, request, null, AuthenticationResponse.class);
+        return clientCommunicator.doPost(urlPath, request, null, AuthenticationResponse.class);
 
-        if(response.isSuccess()) {
-            return response;
-        } else {
-            throw new RuntimeException(response.getMessage());
-        }
     }
 
     public FollowToggleResponse followToggle(FollowToggleRequest request, String urlPath) throws IOException, TweeterRemoteException {

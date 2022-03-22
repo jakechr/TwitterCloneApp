@@ -10,6 +10,7 @@ import edu.byu.cs.tweeter.model.net.request.LoginRequest;
 public class AuthenticationResponse extends Response {
 
     private User user;
+
     private AuthToken authToken;
 
     /**
@@ -49,5 +50,9 @@ public class AuthenticationResponse extends Response {
      */
     public AuthToken getAuthToken() {
         return authToken;
+    }
+
+    public void setAuthToken(AuthToken authToken) {
+        this.authToken = authToken;
     }
 }

@@ -99,6 +99,6 @@ public class FollowService {
      * @return the instance.
      */
     IFollowDAO getFollowDAO() {
-        return daoFactory.getFollowDAO();
+        return daoFactory.getFollowsDAO();
     }
 }
