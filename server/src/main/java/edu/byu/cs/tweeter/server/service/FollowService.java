@@ -1,5 +1,6 @@
 package edu.byu.cs.tweeter.server.service;
 
+import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.FollowToggleRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
@@ -40,6 +41,8 @@ public class FollowService {
         } else if(request.getLimit() <= 0) {
             throw new RuntimeException("[BadRequest] Request needs to have a positive limit");
         }
+        daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
+
         return getFollowDAO().getFollowees(request);
     }
 
@@ -49,6 +52,8 @@ public class FollowService {
         } else if(request.getLimit() <= 0) {
             throw new RuntimeException("[BadRequest] Request needs to have a positive limit");
         }
+        daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
+
         return getFollowDAO().getFollowers(request);
     }
 
@@ -56,20 +61,30 @@ public class FollowService {
         if(request.getFollowee() == null) {
             throw new RuntimeException("[BadRequest] Request needs to have a followee");
         }
-        return getFollowDAO().follow();
+        daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
+        String currUserAlias = daoFactory.getAuthTokenDAO().getCurrUserAlias(request.getAuthToken());
+        User currUser = daoFactory.getUserDAO().getUser(currUserAlias);
+
+        return getFollowDAO().follow(request, currUser);
     }
 
     public FollowToggleResponse unfollow(FollowToggleRequest request) {
         if(request.getFollowee() == null) {
             throw new RuntimeException("[BadRequest] Request needs to have a followee");
         }
-        return getFollowDAO().unfollow();
+        daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
+        String currUserAlias = daoFactory.getAuthTokenDAO().getCurrUserAlias(request.getAuthToken());
+        User currUser = daoFactory.getUserDAO().getUser(currUserAlias);
+
+        return getFollowDAO().unfollow(request, currUser);
     }
 
     public GetFollowersCountResponse getFollowersCount(GetFollowersCountRequest request) {
         if(request.getTargetUser() == null) {
             throw new RuntimeException("[BadRequest] Request needs to have a user alias");
         }
+        daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
+
         return daoFactory.getUserDAO().getFollowersCount(request);
     }
 
@@ -77,10 +92,12 @@ public class FollowService {
         if(request.getTargetUser() == null) {
             throw new RuntimeException("[BadRequest] Request needs to have a user alias");
         }
+        daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
+
         return daoFactory.getUserDAO().getFollowingCount(request);
     }
 
-    public IsFollowerResponse isFollower(IsFollowerRequest request) { // IsFollower not working, thinking it's null
+    public IsFollowerResponse isFollower(IsFollowerRequest request) {
         System.out.println(request.toString());
         if(request.getFollowee() == null) {
             throw new RuntimeException("[BadRequest] Request needs to have a followee");
@@ -88,6 +105,8 @@ public class FollowService {
         if(request.getFollower() == null) {
             throw new RuntimeException("[BadRequest] Request needs to have a follower");
         }
+        daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
+
         return getFollowDAO().isFollower();
     }
 

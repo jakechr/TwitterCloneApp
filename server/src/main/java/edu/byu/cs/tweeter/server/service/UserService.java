@@ -62,10 +62,14 @@ public class UserService {
         if(request.getUserAlias() == null){
             throw new RuntimeException("[BadRequest] Missing a user alias");
         }
-        return getUserDao().getUser(request);
+        daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
+        User user = getUserDao().getUser(request.getUserAlias());
+
+        return new GetUserResponse(user);
     }
 
     public LogoutResponse logout(LogoutRequest request) {
+        daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
         return daoFactory.getAuthTokenDAO().logout(request);
     }
 

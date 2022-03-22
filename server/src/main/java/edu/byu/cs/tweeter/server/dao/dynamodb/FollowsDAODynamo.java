@@ -5,24 +5,22 @@ import java.util.List;
 import java.util.Random;
 
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.request.FollowToggleRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
 import edu.byu.cs.tweeter.model.net.response.FollowToggleResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
-import edu.byu.cs.tweeter.model.net.response.GetFollowersCountResponse;
-import edu.byu.cs.tweeter.model.net.response.GetFollowingCountResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
+import edu.byu.cs.tweeter.model.net.response.LogoutResponse;
 import edu.byu.cs.tweeter.server.dao.IFollowDAO;
 import edu.byu.cs.tweeter.util.FakeData;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.*;
-import com.amazonaws.services.dynamodbv2.model.*;
-import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
 
-public class FollowsDAODynamo implements IFollowDAO {
+public class FollowsDAODynamo extends BaseDAODynamo implements IFollowDAO {
+    private final String tableName = "follows";
+    Table table = dynamoDB.getTable(tableName);
 
     /**
      * Gets the users from the database that the user specified in the request is following. Uses
@@ -85,22 +83,38 @@ public class FollowsDAODynamo implements IFollowDAO {
     }
 
 
-    public FollowToggleResponse follow() {
+    public FollowToggleResponse follow(FollowToggleRequest request, User currUser) {
+        try {
+            System.out.println("Adding a new item...");
+            PutItemOutcome outcome = table
+                    .putItem(new Item().withPrimaryKey("follower_handle", currUser.getAlias(), "followee_handle", request.getFollowee().getAlias())
+                            .withString("follower_name", currUser.getFirstName() + " " + currUser.getLastName())
+                            .withString("followee_name", request.getFollowee().getFirstName() + " " + request.getFollowee().getLastName()));
 
-        return new FollowToggleResponse(true);
+            System.out.println("PutItem succeeded:\n" + outcome.getPutItemResult().toString());
+            return new FollowToggleResponse(true);
+        } catch (Exception e) {
+            System.err.println("Unable to add item: " + "{ Follower: " + currUser.getAlias() + " Followee: " + request.getFollowee().getAlias() + " }");
+            System.err.println(e.getMessage());
+            throw new RuntimeException("[DBError] follow failed");
+        }
     }
 
-    public FollowToggleResponse unfollow() {
-        return new FollowToggleResponse(true);
+    public FollowToggleResponse unfollow(FollowToggleRequest request, User currUser) {
+        try {
+            System.out.println("Clearing out old followee");
+            DeleteItemOutcome outcome = table
+                    .deleteItem(new PrimaryKey("follower_handle", currUser.getAlias(), "followee_handle", request.getFollowee().getAlias()));
+
+            System.out.println("DeleteItem succeeded:\n" + outcome.getDeleteItemResult().toString());
+            return new FollowToggleResponse(true);
+        } catch (Exception e) {
+            System.err.println("Unable to delete item: " + "{ Follower: " + currUser.getAlias() + " Followee: " + request.getFollowee().getAlias() + " }");
+            System.err.println(e.getMessage());
+            throw new RuntimeException("[DBError] unfollow failed");
+        }
     }
 
-    public GetFollowersCountResponse getFollowersCount() {
-        return new GetFollowersCountResponse(20);
-    }
-
-    public GetFollowingCountResponse getFollowingCount() {
-        return new GetFollowingCountResponse(20);
-    }
 
     public IsFollowerResponse isFollower() {
         return new IsFollowerResponse(new Random().nextInt() > 0);

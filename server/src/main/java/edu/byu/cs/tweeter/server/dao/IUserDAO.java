@@ -18,7 +18,7 @@ public interface IUserDAO {
 
     public User register(RegisterRequest request);
 
-    public GetUserResponse getUser(GetUserRequest request);
+    public User getUser(String userAlias);
 
     GetFollowersCountResponse getFollowersCount(GetFollowersCountRequest request);
 

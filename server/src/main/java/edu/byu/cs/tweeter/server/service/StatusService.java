@@ -22,6 +22,8 @@ public class StatusService {
         } else if(request.getLimit() <= 0) {
             throw new RuntimeException("[BadRequest] Request needs to have a positive limit");
         }
+        daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
+
         return getStatusDAO().getStory(request);
     }
 
@@ -31,6 +33,8 @@ public class StatusService {
         } else if(request.getLimit() <= 0) {
             throw new RuntimeException("[BadRequest] Request needs to have a positive limit");
         }
+        daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
+
         return getStatusDAO().getFeed(request);
     }
 
@@ -38,6 +42,8 @@ public class StatusService {
         if(request.getStatus() == null) {
             throw new RuntimeException("[BadRequest] Request needs to have a status");
         }
+        daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
+
         return getStatusDAO().postStatus(request);
     }
 

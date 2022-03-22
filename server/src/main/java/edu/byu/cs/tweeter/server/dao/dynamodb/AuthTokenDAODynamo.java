@@ -66,6 +66,31 @@ public class AuthTokenDAODynamo implements IAuthTokenDAO {
         }
     }
 
+    @Override
+    public String getCurrUserAlias(AuthToken authToken) {
+        try {
+            KeyAttribute itemToGet = new KeyAttribute("token", authToken.getToken());
+            Item authTokenItem = table.getItem(itemToGet);
+
+            return (String) authTokenItem.get("user_alias");
+        }
+        catch (Exception e) {
+            throw new RuntimeException("[DBError] Failed to get current user for session");
+        }
+    }
+
+    @Override
+    public boolean authenticateCurrUserSession(AuthToken authToken) {
+        try {
+            KeyAttribute itemToGet = new KeyAttribute("token", authToken.getToken());
+
+            return true;
+        }
+        catch (Exception e) {
+            throw new RuntimeException("[DBError] Failed to authenticate current user session");
+        }
+    }
+
     private static AuthToken getNewAuthToken() {
         try {
             SecureRandom sr = SecureRandom.getInstance("SHA1PRNG", "SUN");

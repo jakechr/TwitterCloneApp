@@ -1,19 +1,13 @@
 package edu.byu.cs.tweeter.server.dao;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.request.FollowToggleRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
 import edu.byu.cs.tweeter.model.net.response.FollowToggleResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
-import edu.byu.cs.tweeter.model.net.response.GetFollowersCountResponse;
-import edu.byu.cs.tweeter.model.net.response.GetFollowingCountResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
-import edu.byu.cs.tweeter.util.FakeData;
 
 /**
  * A DAO for accessing 'following' data from the database.
@@ -34,14 +28,9 @@ public interface IFollowDAO {
 
     public FollowersResponse getFollowers(FollowersRequest request);
 
+    public FollowToggleResponse follow(FollowToggleRequest request, User currUser);
 
-    public FollowToggleResponse follow();
-
-    public FollowToggleResponse unfollow();
-
-    public GetFollowersCountResponse getFollowersCount();
-
-    public GetFollowingCountResponse getFollowingCount();
+    public FollowToggleResponse unfollow(FollowToggleRequest request, User currUser);
 
     public IsFollowerResponse isFollower();
 

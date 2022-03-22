@@ -94,9 +94,21 @@ public class UserDAODynamo extends BaseDAODynamo implements IUserDAO {
         }
     }
 
-    public GetUserResponse getUser(GetUserRequest request) {
-        return new GetUserResponse(getFakeData().findUserByAlias(request.getUserAlias()));
+    public User getUser(String userAlias) {
+        try {
+            KeyAttribute itemToGet = new KeyAttribute("user_alias", userAlias);
+            Item userItem = table.getItem(itemToGet);
+            String firstName = (String) userItem.get("first_name");
+            String lastName = (String) userItem.get("last_name");
+            String imageURL = (String) userItem.get("image_url");
+
+            return new User(firstName, lastName, userAlias, imageURL);
+        }
+        catch (Exception e) {
+            throw new RuntimeException("[DBError] Failed to get user");
+        }
     }
+
 
     @Override
     public GetFollowersCountResponse getFollowersCount(GetFollowersCountRequest request) {
