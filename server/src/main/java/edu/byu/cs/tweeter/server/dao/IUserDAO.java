@@ -11,7 +11,7 @@ import edu.byu.cs.tweeter.model.net.response.LogoutResponse;
 
 public interface IUserDAO {
 
-    public AuthenticationResponse login(LoginRequest request);
+    public User login(LoginRequest request);
 
     public User register(RegisterRequest request);
 

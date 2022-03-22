@@ -28,7 +28,11 @@ public class UserService {
             throw new RuntimeException("[BadRequest] Missing a password");
         }
 
-        return getUserDao().login(request);
+        User user = getUserDao().login(request);
+
+        AuthToken authToken = daoFactory.getAuthTokenDAO().generateAuthToken(user);
+
+        return new AuthenticationResponse(user, authToken);
     }
 
     public AuthenticationResponse register(RegisterRequest request) {

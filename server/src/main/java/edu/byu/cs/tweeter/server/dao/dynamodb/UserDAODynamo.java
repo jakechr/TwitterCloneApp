@@ -29,7 +29,7 @@ import edu.byu.cs.tweeter.util.FakeData;
 public class UserDAODynamo extends BaseDAODynamo implements IUserDAO {
     private final String tableName = "User";
 
-    public AuthenticationResponse login(LoginRequest request) {
+    public User login(LoginRequest request) {
         Table table = dynamoDB.getTable(tableName);
 
         try {
@@ -46,19 +46,15 @@ public class UserDAODynamo extends BaseDAODynamo implements IUserDAO {
             String regeneratedPasswordToVerify = getSecurePassword(suppliedPassword, databaseSalt);
 
             if (databasePassword.equals(regeneratedPasswordToVerify)) {
-                User user = new User(firstName, lastName, request.getUsername(), imageURL);
-                //AuthToken authToken = getNewAuthToken();
 
-                // TODO: need to make it just return the user and add authtoken logic
-
-                return new AuthenticationResponse(user, null);
+                return new User(firstName, lastName, request.getUsername(), imageURL);
             }
             else {
-                throw new RuntimeException();
+                throw new RuntimeException("[BadRequest] Invalid Credentials");
             }
         }
         catch (Exception e) {
-            throw new RuntimeException("[DBError] invalid credentials");
+            throw new RuntimeException("[DBError] Failed to get user");
         }
     }
 
@@ -103,25 +99,6 @@ public class UserDAODynamo extends BaseDAODynamo implements IUserDAO {
         return new LogoutResponse(true);
     }
 
-    /**
-     * Returns the dummy user to be returned by the login operation.
-     * This is written as a separate method to allow mocking of the dummy user.
-     *
-     * @return a dummy user.
-     */
-    User getDummyUser() {
-        return getFakeData().getFirstUser();
-    }
-
-    /**
-     * Returns the dummy auth token to be returned by the login operation.
-     * This is written as a separate method to allow mocking of the dummy auth token.
-     *
-     * @return a dummy auth token.
-     */
-    AuthToken getDummyAuthToken() {
-        return getFakeData().getAuthToken();
-    }
 
     /**
      * Returns the {@link FakeData} object used to generate dummy users and auth tokens.
