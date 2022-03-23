@@ -1,6 +1,7 @@
 package edu.byu.cs.tweeter.server.dao.dynamodb;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -17,6 +18,7 @@ import edu.byu.cs.tweeter.server.dao.IFollowDAO;
 import edu.byu.cs.tweeter.util.FakeData;
 
 import com.amazonaws.services.dynamodbv2.document.*;
+import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 
 public class FollowsDAODynamo extends BaseDAODynamo implements IFollowDAO {
     private final String tableName = "follows";
@@ -80,6 +82,35 @@ public class FollowsDAODynamo extends BaseDAODynamo implements IFollowDAO {
         }
 
         return new FollowersResponse(responseFollowers, hasMorePages);
+    }
+
+    public List<String> getAllFollowers(User user) {
+        QuerySpec querySpec = new QuerySpec();
+        Index index = table.getIndex("followee_handle-follower_handle-index");
+
+        querySpec.withHashKey(new KeyAttribute("followee_handle", user.getAlias()));
+
+        ItemCollection<QueryOutcome> items = null;
+        Iterator<Item> iterator = null;
+        Item item = null;
+        List<String> followerAliases = new ArrayList<>();
+
+        try {
+            System.out.println("All users following: " + user.getAlias());
+            items = index.query(querySpec);
+
+            iterator = items.iterator();
+            while (iterator.hasNext()) {
+                item = iterator.next();
+                followerAliases.add(item.getString("follower_handle"));
+            }
+            return followerAliases;
+        }
+        catch (Exception e) {
+            System.err.println("Unable to query followers of: " + user.getAlias());
+            System.err.println(e.getMessage());
+            return new ArrayList<>();
+        }
     }
 
 

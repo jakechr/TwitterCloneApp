@@ -1,5 +1,7 @@
 package edu.byu.cs.tweeter.server.service;
 
+import java.util.List;
+
 import edu.byu.cs.tweeter.model.net.request.FeedRequest;
 import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
 import edu.byu.cs.tweeter.model.net.request.StoryRequest;
@@ -46,7 +48,9 @@ public class StatusService {
 
         PostStatusResponse response = getStatusDAO().postStatus(request);
 
-        // propagate the status to all followers
+        List<String> followerAliases = daoFactory.getFollowsDAO().getAllFollowers(request.getStatus().getUser());
+
+        daoFactory.getFeedDAO().addStatusToFeed(followerAliases, request.getStatus());
 
         return response;
     }

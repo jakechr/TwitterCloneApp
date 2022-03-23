@@ -1,5 +1,7 @@
 package edu.byu.cs.tweeter.server.dao;
 
+import java.util.List;
+
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.FollowToggleRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowersRequest;
@@ -34,5 +36,7 @@ public interface IFollowDAO {
     public FollowToggleResponse unfollow(FollowToggleRequest request, User currUser);
 
     public IsFollowerResponse isFollower(IsFollowerRequest request);
+
+    List<String> getAllFollowers(User user);
 
 }
