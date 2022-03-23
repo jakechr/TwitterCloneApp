@@ -8,11 +8,11 @@ import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.FollowToggleRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
+import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
 import edu.byu.cs.tweeter.model.net.response.FollowToggleResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
-import edu.byu.cs.tweeter.model.net.response.LogoutResponse;
 import edu.byu.cs.tweeter.server.dao.IFollowDAO;
 import edu.byu.cs.tweeter.util.FakeData;
 
@@ -116,8 +116,19 @@ public class FollowsDAODynamo extends BaseDAODynamo implements IFollowDAO {
     }
 
 
-    public IsFollowerResponse isFollower() {
-        return new IsFollowerResponse(new Random().nextInt() > 0);
+    public IsFollowerResponse isFollower(IsFollowerRequest request) {
+        try {
+            System.out.println("Checking if the user is a follower...");
+            Item item = table
+                    .getItem(new PrimaryKey("follower_handle", request.getFollower().getAlias(), "followee_handle", request.getFollowee().getAlias()));
+
+            System.out.println("Check for follower succeeded:\n" + item.toString());
+            return new IsFollowerResponse(true);
+        } catch (Exception e) {
+            System.err.println("No follow relationship found: " + "{ Follower: " + request.getFollower().getAlias() + " Followee: " + request.getFollowee().getAlias() + " }");
+            System.err.println(e.getMessage());
+            return new IsFollowerResponse(false);
+        }
     }
 
     /**

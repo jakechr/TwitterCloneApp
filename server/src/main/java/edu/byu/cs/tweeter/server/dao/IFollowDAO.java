@@ -4,6 +4,7 @@ import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.FollowToggleRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
+import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
 import edu.byu.cs.tweeter.model.net.response.FollowToggleResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
@@ -32,6 +33,6 @@ public interface IFollowDAO {
 
     public FollowToggleResponse unfollow(FollowToggleRequest request, User currUser);
 
-    public IsFollowerResponse isFollower();
+    public IsFollowerResponse isFollower(IsFollowerRequest request);
 
 }

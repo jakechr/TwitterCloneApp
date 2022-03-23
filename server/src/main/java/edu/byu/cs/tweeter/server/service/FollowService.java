@@ -107,7 +107,7 @@ public class FollowService {
         }
         daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
 
-        return getFollowDAO().isFollower();
+        return getFollowDAO().isFollower(request);
     }
 
     /**
