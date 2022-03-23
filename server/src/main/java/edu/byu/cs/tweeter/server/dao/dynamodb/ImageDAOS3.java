@@ -32,9 +32,6 @@ public class ImageDAOS3 implements IImageDAO {
                 .withRegion("us-east-1")
                 .build();
 
-        String fileName = alias + ".jpg";
-
-
         byte[] imageArray = Base64.getDecoder().decode(image);
         ByteArrayInputStream bis = new ByteArrayInputStream(imageArray);
 

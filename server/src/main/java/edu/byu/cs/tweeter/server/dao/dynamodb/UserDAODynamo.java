@@ -1,9 +1,12 @@
 package edu.byu.cs.tweeter.server.dao.dynamodb;
 
+import com.amazonaws.services.dynamodbv2.document.AttributeUpdate;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.KeyAttribute;
+import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.UpdateItemOutcome;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -135,6 +138,27 @@ public class UserDAODynamo extends BaseDAODynamo implements IUserDAO {
         }
         catch (Exception e) {
             throw new RuntimeException("[DBError] Failed to get following count");
+        }
+    }
+
+    @Override
+    public boolean incrementDecrementFollowCount(String userAlias, boolean increment, String attributeToChange) {
+        int followingCount;
+        int change = increment ? 1 : -1;
+        try {
+            KeyAttribute itemToGet = new KeyAttribute("user_alias", userAlias);
+            Item userItem = table.getItem(itemToGet);
+            followingCount = userItem.getInt(attributeToChange);
+
+            UpdateItemOutcome outcome = table.updateItem(new PrimaryKey("user_alias", userAlias),
+                    new AttributeUpdate(attributeToChange).put(followingCount + change));
+
+            System.out.println("UpdateItem succeeded:\n" + outcome.getUpdateItemResult().toString());
+            return true;
+        } catch (Exception e) {
+            System.err.println("Unable to update item: " + userAlias + " with change: " + change + " for attribute: " + attributeToChange);
+            System.err.println(e.getMessage());
+            return false;
         }
     }
 

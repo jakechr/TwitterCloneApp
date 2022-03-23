@@ -1,9 +1,15 @@
 package edu.byu.cs.tweeter.server.dao.dynamodb;
 
+import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
+import com.amazonaws.services.dynamodbv2.document.Table;
+import com.fasterxml.jackson.databind.ser.Serializers;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.Status;
+import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.FeedRequest;
 import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
 import edu.byu.cs.tweeter.model.net.request.StoryRequest;
@@ -13,7 +19,9 @@ import edu.byu.cs.tweeter.model.net.response.StoryResponse;
 import edu.byu.cs.tweeter.server.dao.IStatusDAO;
 import edu.byu.cs.tweeter.util.FakeData;
 
-public class StatusDAODynamo implements IStatusDAO {
+public class StatusDAODynamo extends BaseDAODynamo implements IStatusDAO {
+    private final String tableName = "Status";
+    Table table = dynamoDB.getTable(tableName);
 
     public StoryResponse getStory(StoryRequest request) {
         // TODO: Generates dummy data. Replace with a real implementation.
@@ -86,8 +94,24 @@ public class StatusDAODynamo implements IStatusDAO {
     }
 
     public PostStatusResponse postStatus(PostStatusRequest request) {
-        return new PostStatusResponse(true);
+        try {
+            System.out.println("Adding a new status...");
+            PutItemOutcome outcome = table
+                    .putItem(new Item().withPrimaryKey("user_alias", request.getStatus().getUser().getAlias(), "timestamp", request.getStatus().getDate())
+                            .withString("message", request.getStatus().getPost()).withList("mentions", request.getStatus().getMentions())
+                            .withList("urls", request.getStatus().getUrls()));
+
+            System.out.println("PutItem succeeded:\n" + outcome.getPutItemResult().toString());
+
+            return new PostStatusResponse(true);
+
+        } catch (Exception e) {
+            System.err.println("Unable to add item: " + request.toString());
+            System.err.println(e.getMessage());
+            throw new RuntimeException("[DBError] postStatus failed");
+        }
     }
+
 
     /**
      * Returns the list of dummy followee data. This is written as a separate method to allow

@@ -64,8 +64,11 @@ public class FollowService {
         daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
         String currUserAlias = daoFactory.getAuthTokenDAO().getCurrUserAlias(request.getAuthToken());
         User currUser = daoFactory.getUserDAO().getUser(currUserAlias);
+        FollowToggleResponse response = getFollowDAO().follow(request, currUser);
 
-        return getFollowDAO().follow(request, currUser);
+        daoFactory.getUserDAO().incrementDecrementFollowCount(currUserAlias, true, "following_count");
+        daoFactory.getUserDAO().incrementDecrementFollowCount(request.getFollowee().getAlias(), true, "followers_count");
+        return response;
     }
 
     public FollowToggleResponse unfollow(FollowToggleRequest request) {
@@ -75,8 +78,11 @@ public class FollowService {
         daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
         String currUserAlias = daoFactory.getAuthTokenDAO().getCurrUserAlias(request.getAuthToken());
         User currUser = daoFactory.getUserDAO().getUser(currUserAlias);
+        FollowToggleResponse response = getFollowDAO().unfollow(request, currUser);
 
-        return getFollowDAO().unfollow(request, currUser);
+        daoFactory.getUserDAO().incrementDecrementFollowCount(currUserAlias, false, "following_count");
+        daoFactory.getUserDAO().incrementDecrementFollowCount(request.getFollowee().getAlias(), false, "followers_count");
+        return response;
     }
 
     public GetFollowersCountResponse getFollowersCount(GetFollowersCountRequest request) {

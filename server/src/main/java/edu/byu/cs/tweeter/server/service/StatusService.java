@@ -44,7 +44,11 @@ public class StatusService {
         }
         daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
 
-        return getStatusDAO().postStatus(request);
+        PostStatusResponse response = getStatusDAO().postStatus(request);
+
+        // propagate the status to all followers
+
+        return response;
     }
 
     private IStatusDAO getStatusDAO() {
