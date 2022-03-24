@@ -7,7 +7,7 @@ import edu.byu.cs.tweeter.model.net.response.LogoutResponse;
 
 public interface IAuthTokenDAO {
     AuthToken generateAuthToken(User user);
-    LogoutResponse logout(LogoutRequest request);
+    LogoutResponse logout(LogoutRequest request, boolean timedOut);
     String getCurrUserAlias(AuthToken authToken);
     boolean authenticateCurrUserSession(AuthToken authToken);
 }

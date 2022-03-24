@@ -24,7 +24,9 @@ public class StatusService {
         } else if(request.getLimit() <= 0) {
             throw new RuntimeException("[BadRequest] Request needs to have a positive limit");
         }
-        daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
+        if (!daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken())) {
+            throw new RuntimeException("[BadRequest] The current user session is no longer valid. PLease logout and login again.");
+        }
 
         return getStatusDAO().getStory(request);
     }
@@ -35,7 +37,9 @@ public class StatusService {
         } else if(request.getLimit() <= 0) {
             throw new RuntimeException("[BadRequest] Request needs to have a positive limit");
         }
-        daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
+        if (!daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken())) {
+            throw new RuntimeException("[BadRequest] The current user session is no longer valid. PLease logout and login again.");
+        }
 
         return getStatusDAO().getFeed(request);
     }
@@ -44,7 +48,9 @@ public class StatusService {
         if(request.getStatus() == null) {
             throw new RuntimeException("[BadRequest] Request needs to have a status");
         }
-        daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
+        if (!daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken())) {
+            throw new RuntimeException("[BadRequest] The current user session is no longer valid. PLease logout and login again.");
+        }
 
         PostStatusResponse response = getStatusDAO().postStatus(request);
 

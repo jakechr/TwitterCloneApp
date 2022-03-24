@@ -7,12 +7,14 @@ import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersCountRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingCountRequest;
 import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
+import edu.byu.cs.tweeter.model.net.request.LogoutRequest;
 import edu.byu.cs.tweeter.model.net.response.FollowToggleResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersCountResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingCountResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
+import edu.byu.cs.tweeter.model.net.response.LogoutResponse;
 import edu.byu.cs.tweeter.server.dao.IDAOFactory;
 import edu.byu.cs.tweeter.server.dao.IFollowDAO;
 
@@ -41,7 +43,9 @@ public class FollowService {
         } else if(request.getLimit() <= 0) {
             throw new RuntimeException("[BadRequest] Request needs to have a positive limit");
         }
-        daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
+        if (!daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken())) {
+            throw new RuntimeException("[BadRequest] The current user session is no longer valid. PLease logout and login again.");
+        }
 
         return getFollowDAO().getFollowees(request);
     }
@@ -52,7 +56,9 @@ public class FollowService {
         } else if(request.getLimit() <= 0) {
             throw new RuntimeException("[BadRequest] Request needs to have a positive limit");
         }
-        daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
+        if (!daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken())) {
+            throw new RuntimeException("[BadRequest] The current user session is no longer valid. PLease logout and login again.");
+        }
 
         return getFollowDAO().getFollowers(request);
     }
@@ -61,7 +67,10 @@ public class FollowService {
         if(request.getFollowee() == null) {
             throw new RuntimeException("[BadRequest] Request needs to have a followee");
         }
-        daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
+        if (!daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken())) {
+            throw new RuntimeException("[BadRequest] The current user session is no longer valid. PLease logout and login again.");
+        }
+
         String currUserAlias = daoFactory.getAuthTokenDAO().getCurrUserAlias(request.getAuthToken());
         User currUser = daoFactory.getUserDAO().getUser(currUserAlias);
         FollowToggleResponse response = getFollowDAO().follow(request, currUser);
@@ -75,7 +84,10 @@ public class FollowService {
         if(request.getFollowee() == null) {
             throw new RuntimeException("[BadRequest] Request needs to have a followee");
         }
-        daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
+        if (!daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken())) {
+            throw new RuntimeException("[BadRequest] The current user session is no longer valid. PLease logout and login again.");
+        }
+
         String currUserAlias = daoFactory.getAuthTokenDAO().getCurrUserAlias(request.getAuthToken());
         User currUser = daoFactory.getUserDAO().getUser(currUserAlias);
         FollowToggleResponse response = getFollowDAO().unfollow(request, currUser);
@@ -89,7 +101,9 @@ public class FollowService {
         if(request.getTargetUser() == null) {
             throw new RuntimeException("[BadRequest] Request needs to have a user alias");
         }
-        daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
+        if (!daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken())) {
+            throw new RuntimeException("[BadRequest] The current user session is no longer valid. PLease logout and login again.");
+        }
 
         return daoFactory.getUserDAO().getFollowersCount(request);
     }
@@ -98,7 +112,9 @@ public class FollowService {
         if(request.getTargetUser() == null) {
             throw new RuntimeException("[BadRequest] Request needs to have a user alias");
         }
-        daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
+        if (!daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken())) {
+            throw new RuntimeException("[BadRequest] The current user session is no longer valid. PLease logout and login again.");
+        }
 
         return daoFactory.getUserDAO().getFollowingCount(request);
     }
@@ -111,7 +127,9 @@ public class FollowService {
         if(request.getFollower() == null) {
             throw new RuntimeException("[BadRequest] Request needs to have a follower");
         }
-        daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
+        if (!daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken())) {
+            throw new RuntimeException("[BadRequest] The current user session is no longer valid. PLease logout and login again.");
+        }
 
         return getFollowDAO().isFollower(request);
     }

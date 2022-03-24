@@ -2,11 +2,15 @@ package edu.byu.cs.tweeter.server.dao.dynamodb;
 
 import static edu.byu.cs.tweeter.server.dao.dynamodb.BaseDAODynamo.dynamoDB;
 
+import com.amazonaws.services.dynamodbv2.document.AttributeUpdate;
 import com.amazonaws.services.dynamodbv2.document.DeleteItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.KeyAttribute;
+import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.UpdateItemOutcome;
+import com.google.gson.Gson;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -14,8 +18,6 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
@@ -27,15 +29,21 @@ public class AuthTokenDAODynamo implements IAuthTokenDAO {
     final String tableName = "AuthToken";
     Table table = dynamoDB.getTable(tableName);
 
+    final static long INACTIVITY_MIN_LIMIT = 5;
+
     @Override
     public AuthToken generateAuthToken(User user) {
         AuthToken authToken = getNewAuthToken();
 
         try {
             System.out.println("Adding a new item...");
+            LocalDateTime now = LocalDateTime.now();
+            now = now.plusMinutes(INACTIVITY_MIN_LIMIT);
+            Gson gson = new Gson();
+            String json = gson.toJson(now);
             PutItemOutcome outcome = table
                     .putItem(new Item().withPrimaryKey("token", authToken.getToken())
-                            .withString("timestamp", authToken.getDatetime()).withString("user_alias", user.getAlias()));
+                            .withString("timestamp", json).withString("user_alias", user.getAlias()));
 
             System.out.println("PutItem succeeded:\n" + outcome.getPutItemResult());
 
@@ -49,7 +57,7 @@ public class AuthTokenDAODynamo implements IAuthTokenDAO {
     }
 
     @Override
-    public LogoutResponse logout(LogoutRequest request) {
+    public LogoutResponse logout(LogoutRequest request, boolean timedOut) {
         try {
             System.out.println("Clearing out old authToken");
             DeleteItemOutcome outcome = table
@@ -57,7 +65,8 @@ public class AuthTokenDAODynamo implements IAuthTokenDAO {
 
             System.out.println("DeleteItem succeeded:\n" + outcome.getDeleteItemResult().toString());
 
-            return new LogoutResponse(true);
+            LogoutResponse response = timedOut ? new LogoutResponse(true, "User session has timed out. Please login again.") : new LogoutResponse(true);
+            return response;
 
         } catch (Exception e) {
             System.err.println("Unable to add item: " + request.getAuthToken().getToken());
@@ -83,6 +92,28 @@ public class AuthTokenDAODynamo implements IAuthTokenDAO {
     public boolean authenticateCurrUserSession(AuthToken authToken) {
         try {
             KeyAttribute itemToGet = new KeyAttribute("token", authToken.getToken());
+            Item authTokenItem = table.getItem(itemToGet);
+            Gson gson = new Gson();
+            LocalDateTime time = gson.fromJson(authTokenItem.getString("timestamp"), LocalDateTime.class);
+            LocalDateTime now = LocalDateTime.now();
+
+            System.out.println(time.toString());
+            System.out.println(now.toString());
+
+            if (now.isAfter(time)) {
+                System.out.println("The authToken has timed out.");
+                return false;
+            }
+
+            System.out.println("Updating authToken timestamp");
+
+            now = now.plusMinutes(INACTIVITY_MIN_LIMIT);
+            String json = gson.toJson(now);
+
+            UpdateItemOutcome outcome = table.updateItem(new PrimaryKey("token", authToken.getToken()),
+                    new AttributeUpdate("timestamp").put(json));
+
+            System.out.println("UpdateItem succeeded:\n" + outcome.getUpdateItemResult().toString());
 
             return true;
         }
@@ -98,6 +129,7 @@ public class AuthTokenDAODynamo implements IAuthTokenDAO {
             sr.nextBytes(salt);
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
             LocalDateTime now = LocalDateTime.now();
+            now = now.plusMinutes(INACTIVITY_MIN_LIMIT);
             return new AuthToken(Base64.getEncoder().encodeToString(salt), dtf.format(now));
         } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
             e.printStackTrace();

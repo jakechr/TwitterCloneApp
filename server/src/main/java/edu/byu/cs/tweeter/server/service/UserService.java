@@ -1,7 +1,5 @@
 package edu.byu.cs.tweeter.server.service;
 
-import java.io.IOException;
-
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.GetUserRequest;
@@ -62,15 +60,19 @@ public class UserService {
         if(request.getUserAlias() == null){
             throw new RuntimeException("[BadRequest] Missing a user alias");
         }
-        daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
+        if (!daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken())) {
+            throw new RuntimeException("[BadRequest] The current user session is no longer valid. PLease logout and login again.");
+        }
+
         User user = getUserDao().getUser(request.getUserAlias());
 
         return new GetUserResponse(user);
     }
 
     public LogoutResponse logout(LogoutRequest request) {
-        daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken());
-        return daoFactory.getAuthTokenDAO().logout(request);
+        // Don't authenticate so that the user can logout and refresh their session if their authToken
+        // is expired.
+        return daoFactory.getAuthTokenDAO().logout(request, true);
     }
 
     private IUserDAO getUserDao() {
