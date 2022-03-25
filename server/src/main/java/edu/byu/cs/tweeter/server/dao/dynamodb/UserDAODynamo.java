@@ -112,6 +112,18 @@ public class UserDAODynamo extends BaseDAODynamo implements IUserDAO {
         }
     }
 
+    public boolean checkIfUserInDB(String userAlias) {
+        try {
+            KeyAttribute itemToGet = new KeyAttribute("user_alias", userAlias);
+            Item userItem = table.getItem(itemToGet);
+
+            return userItem != null;
+        }
+        catch (Exception e) {
+            throw new RuntimeException("[DBError] Failed to check if alias in use");
+        }
+    }
+
 
     @Override
     public GetFollowersCountResponse getFollowersCount(GetFollowersCountRequest request) {
@@ -160,17 +172,6 @@ public class UserDAODynamo extends BaseDAODynamo implements IUserDAO {
             System.err.println(e.getMessage());
             return false;
         }
-    }
-
-
-    /**
-     * Returns the {@link FakeData} object used to generate dummy users and auth tokens.
-     * This is written as a separate method to allow mocking of the {@link FakeData}.
-     *
-     * @return a {@link FakeData} instance.
-     */
-    FakeData getFakeData() {
-        return new FakeData();
     }
 
     private static String getSecurePassword(String password, String salt) {

@@ -16,8 +16,6 @@ public interface IStatusDAO {
     
     public StoryResponse getStory(StoryRequest request);
 
-    public FeedResponse getFeed(FeedRequest request);
-
     public PostStatusResponse postStatus(PostStatusRequest request);
 
 }

@@ -49,6 +49,11 @@ public class UserService {
 
         request.setImage(daoFactory.getImageDAO().uploadImage(request.getImage(), request.getUsername()));
 
+        boolean userAlreadyRegistered = getUserDao().checkIfUserInDB(request.getUsername());
+
+        if (userAlreadyRegistered) {
+            throw new RuntimeException("[BadRequest] username already in use");
+        }
 
         User user = getUserDao().register(request);
 

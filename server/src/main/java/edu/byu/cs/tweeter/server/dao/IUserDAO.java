@@ -31,4 +31,6 @@ public interface IUserDAO {
     GetFollowingCountResponse getFollowingCount(GetFollowingCountRequest request);
 
     boolean incrementDecrementFollowCount(String userAlias, boolean increment, String attributeToChange);
+
+    boolean checkIfUserInDB(String userAlias);
 }

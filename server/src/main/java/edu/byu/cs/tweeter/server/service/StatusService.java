@@ -41,7 +41,7 @@ public class StatusService {
             throw new RuntimeException("[BadRequest] The current user session is no longer valid. PLease logout and login again.");
         }
 
-        return getStatusDAO().getFeed(request);
+        return daoFactory.getFeedDAO().getFeed(request);
     }
 
     public PostStatusResponse postStatus(PostStatusRequest request) {
