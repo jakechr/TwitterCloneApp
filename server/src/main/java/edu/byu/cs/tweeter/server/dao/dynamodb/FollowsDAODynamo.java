@@ -3,6 +3,7 @@ package edu.byu.cs.tweeter.server.dao.dynamodb;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import edu.byu.cs.tweeter.model.domain.User;
@@ -19,6 +20,7 @@ import edu.byu.cs.tweeter.util.FakeData;
 
 import com.amazonaws.services.dynamodbv2.document.*;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 
 public class FollowsDAODynamo extends BaseDAODynamo implements IFollowDAO {
     private final String tableName = "follows";
@@ -35,53 +37,109 @@ public class FollowsDAODynamo extends BaseDAODynamo implements IFollowDAO {
      * @return the followees.
      */
     public FollowingResponse getFollowees(FollowingRequest request) {
-        // TODO: Generates dummy data. Replace with a real implementation.
         assert request.getLimit() > 0;
         assert request.getUserAlias() != null;
 
-        List<User> allFollowees = getDummyFollowees();
-        List<User> responseFollowees = new ArrayList<>(request.getLimit());
+        String lastItemAlias = (String) request.getLastItem();
+        List<User> following = new ArrayList<>();
 
-        boolean hasMorePages = false;
+        QuerySpec querySpec3 = new QuerySpec();
 
-        if(request.getLimit() > 0) {
-            if (allFollowees != null) {
-                int followeesIndex = getFolloweesStartingIndex(request.getLastItem(), allFollowees);
-
-                for(int limitCounter = 0; followeesIndex < allFollowees.size() && limitCounter < request.getLimit(); followeesIndex++, limitCounter++) {
-                    responseFollowees.add(allFollowees.get(followeesIndex));
-                }
-
-                hasMorePages = followeesIndex < allFollowees.size();
-            }
+        if (lastItemAlias == null) {
+            querySpec3.withHashKey(new KeyAttribute("follower_handle", request.getUserAlias()))
+                    .withScanIndexForward(false).withMaxResultSize(request.getLimit());
+        } else {
+            querySpec3.withHashKey(new KeyAttribute("follower_handle", request.getUserAlias()))
+                    .withScanIndexForward(false).withMaxResultSize(request.getLimit())
+                    .withExclusiveStartKey(new PrimaryKey("follower_handle", request.getUserAlias(),
+                            "followee_handle", lastItemAlias));
         }
 
-        return new FollowingResponse(responseFollowees, hasMorePages);
+
+        ItemCollection<QueryOutcome> items = null;
+        Iterator<Item> iterator = null;
+        Item item = null;
+
+        try {
+            items = table.query(querySpec3);
+
+            iterator = items.iterator();
+            while (iterator.hasNext()) {
+                item = iterator.next();
+                String firstName = item.getString("followee_first_name");
+                String lastName = item.getString("followee_last_name");
+                String handle = item.getString("followee_handle");
+                String image = item.getString("followee_image");
+                System.out.println(item.getString("followee_handle") + ": " + item.getString("followee_name"));
+
+                following.add(new User(firstName, lastName, handle, image));
+            }
+
+            Map<String, AttributeValue> lastItem = items.getLastLowLevelResult().getQueryResult().getLastEvaluatedKey();
+            boolean hasMorePages = lastItem != null;
+
+            return new FollowingResponse(following, hasMorePages);
+
+        } catch (Exception e) {
+            System.err.println("Unable to query followees of " + request.getUserAlias());
+            System.err.println(e.getMessage());
+            throw new RuntimeException("[DBError] get followees failed for " + request.getUserAlias());
+        }
+
     }
 
     public FollowersResponse getFollowers(FollowersRequest request) {
-        // TODO: Generates dummy data. Replace with a real implementation.
         assert request.getLimit() > 0;
         assert request.getUserAlias() != null;
 
-        List<User> allFollowers = getDummyFollowees();
-        List<User> responseFollowers = new ArrayList<>(request.getLimit());
+        String lastItemAlias = (String) request.getLastItem();
+        List<User> followers = new ArrayList<>();
 
-        boolean hasMorePages = false;
+        QuerySpec querySpec3 = new QuerySpec();
+        Index index = table.getIndex("followee_handle-follower_handle-index");
 
-        if(request.getLimit() > 0) {
-            if (allFollowers != null) {
-                int followersIndex = getFolloweesStartingIndex(request.getLastItem(), allFollowers);
-
-                for(int limitCounter = 0; followersIndex < allFollowers.size() && limitCounter < request.getLimit(); followersIndex++, limitCounter++) {
-                    responseFollowers.add(allFollowers.get(followersIndex));
-                }
-
-                hasMorePages = followersIndex < allFollowers.size();
-            }
+        if (lastItemAlias == null) {
+            querySpec3.withHashKey(new KeyAttribute("followee_handle", request.getUserAlias()))
+                    .withScanIndexForward(false).withMaxResultSize(request.getLimit());
+        } else {
+            querySpec3.withHashKey(new KeyAttribute("followee_handle", request.getUserAlias()))
+                    .withScanIndexForward(false).withMaxResultSize(request.getLimit())
+                    .withExclusiveStartKey(new PrimaryKey("follower_handle", lastItemAlias,
+                            "followee_handle", request.getUserAlias()));
         }
 
-        return new FollowersResponse(responseFollowers, hasMorePages);
+
+        ItemCollection<QueryOutcome> items = null;
+        Iterator<Item> iterator = null;
+        Item item = null;
+
+        try {
+            items = index.query(querySpec3);
+
+            iterator = items.iterator();
+            while (iterator.hasNext()) {
+                item = iterator.next();
+                String firstName = item.getString("follower_first_name");
+                String lastName = item.getString("follower_last_name");
+                String handle = item.getString("follower_handle");
+                String image = item.getString("follower_image");
+                System.out.println(item.getString("follower_handle") + ": " + item.getString("follower_name"));
+
+                followers.add(new User(firstName, lastName, handle, image));
+            }
+
+            Map<String, AttributeValue> lastItem = items.getLastLowLevelResult().getQueryResult().getLastEvaluatedKey();
+            boolean hasMorePages = lastItem != null;
+
+            return new FollowersResponse(followers, hasMorePages);
+
+        } catch (Exception e) {
+            System.err.println("Unable to query followers of " + request.getUserAlias());
+            System.err.println(e.getMessage());
+            throw new RuntimeException("[DBError] get followers failed for " + request.getUserAlias());
+        }
+
+
     }
 
     public List<String> getAllFollowers(User user) {
@@ -109,7 +167,7 @@ public class FollowsDAODynamo extends BaseDAODynamo implements IFollowDAO {
         catch (Exception e) {
             System.err.println("Unable to query followers of: " + user.getAlias());
             System.err.println(e.getMessage());
-            return new ArrayList<>();
+            throw new RuntimeException("[DBError] propagate status to followers failed, find followers failed");
         }
     }
 
@@ -119,8 +177,13 @@ public class FollowsDAODynamo extends BaseDAODynamo implements IFollowDAO {
             System.out.println("Adding a new item...");
             PutItemOutcome outcome = table
                     .putItem(new Item().withPrimaryKey("follower_handle", currUser.getAlias(), "followee_handle", request.getFollowee().getAlias())
-                            .withString("follower_name", currUser.getFirstName() + " " + currUser.getLastName())
-                            .withString("followee_name", request.getFollowee().getFirstName() + " " + request.getFollowee().getLastName()));
+                            .withString("follower_first_name", currUser.getFirstName())
+                            .withString("follower_last_name", currUser.getLastName())
+                            .withString("follower_image", currUser.getImageUrl())
+                            .withString("followee_first_name", request.getFollowee().getFirstName())
+                            .withString("followee_last_name", request.getFollowee().getLastName())
+                            .withString("followee_image", request.getFollowee().getImageUrl()));
+
 
             System.out.println("PutItem succeeded:\n" + outcome.getPutItemResult().toString());
             return new FollowToggleResponse(true);

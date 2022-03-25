@@ -70,6 +70,9 @@ public class FollowService {
         if (!daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken())) {
             throw new RuntimeException("[BadRequest] The current user session is no longer valid. PLease logout and login again.");
         }
+        if (!daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken())) {
+            throw new RuntimeException("[BadRequest] The current user session is no longer valid. PLease logout and login again.");
+        }
 
         String currUserAlias = daoFactory.getAuthTokenDAO().getCurrUserAlias(request.getAuthToken());
         User currUser = daoFactory.getUserDAO().getUser(currUserAlias);

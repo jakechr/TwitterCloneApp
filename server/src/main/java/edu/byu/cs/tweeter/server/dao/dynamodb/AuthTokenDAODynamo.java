@@ -91,6 +91,7 @@ public class AuthTokenDAODynamo implements IAuthTokenDAO {
     @Override
     public boolean authenticateCurrUserSession(AuthToken authToken) {
         try {
+            System.out.println(authToken.toString());
             KeyAttribute itemToGet = new KeyAttribute("token", authToken.getToken());
             Item authTokenItem = table.getItem(itemToGet);
             Gson gson = new Gson();
@@ -118,6 +119,7 @@ public class AuthTokenDAODynamo implements IAuthTokenDAO {
             return true;
         }
         catch (Exception e) {
+            System.out.println(e.getMessage());
             throw new RuntimeException("[DBError] Failed to authenticate current user session");
         }
     }
