@@ -9,10 +9,16 @@ import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
 import edu.byu.cs.tweeter.model.net.response.AuthenticationResponse;
 import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
 import edu.byu.cs.tweeter.model.net.response.LogoutResponse;
-import edu.byu.cs.tweeter.server.dao.UserDAO;
-import edu.byu.cs.tweeter.util.FakeData;
+import edu.byu.cs.tweeter.server.dao.IDAOFactory;
+import edu.byu.cs.tweeter.server.dao.IUserDAO;
+import edu.byu.cs.tweeter.server.dao.dynamodb.DynamoDAOFactory;
 
 public class UserService {
+    IDAOFactory daoFactory;
+
+    public UserService(IDAOFactory daoFactory) {
+        this.daoFactory = daoFactory;
+    }
 
     public AuthenticationResponse login(LoginRequest request) {
         if(request.getUsername() == null){
@@ -21,7 +27,11 @@ public class UserService {
             throw new RuntimeException("[BadRequest] Missing a password");
         }
 
-        return getUserDao().login(request);
+        User user = getUserDao().login(request);
+
+        AuthToken authToken = daoFactory.getAuthTokenDAO().generateAuthToken(user);
+
+        return new AuthenticationResponse(user, authToken);
     }
 
     public AuthenticationResponse register(RegisterRequest request) {
@@ -37,21 +47,41 @@ public class UserService {
             throw new RuntimeException("[BadRequest] Missing a profile picture");
         }
 
-        return getUserDao().register(request);
+        request.setImage(daoFactory.getImageDAO().uploadImage(request.getImage(), request.getUsername()));
+
+        boolean userAlreadyRegistered = getUserDao().checkIfUserInDB(request.getUsername());
+
+        if (userAlreadyRegistered) {
+            throw new RuntimeException("[BadRequest] username already in use");
+        }
+
+        User user = getUserDao().register(request);
+
+        AuthToken authToken = daoFactory.getAuthTokenDAO().generateAuthToken(user);
+
+        return new AuthenticationResponse(user, authToken);
     }
 
     public GetUserResponse getUser(GetUserRequest request) {
         if(request.getUserAlias() == null){
             throw new RuntimeException("[BadRequest] Missing a user alias");
         }
-        return getUserDao().getUser(request);
+        if (!daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken())) {
+            throw new RuntimeException("[BadRequest] The current user session is no longer valid. PLease logout and login again.");
+        }
+
+        User user = getUserDao().getUser(request.getUserAlias());
+
+        return new GetUserResponse(user);
     }
 
     public LogoutResponse logout(LogoutRequest request) {
-        return getUserDao().logout(request);
+        // Don't authenticate so that the user can logout and refresh their session if their authToken
+        // is expired.
+        return daoFactory.getAuthTokenDAO().logout(request, true);
     }
 
-    private UserDAO getUserDao() {
-        return new UserDAO();
+    private IUserDAO getUserDao() {
+        return daoFactory.getUserDAO();
     }
 }

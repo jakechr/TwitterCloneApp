@@ -59,6 +59,7 @@ public class RegisterTask extends AuthenticateTask {
         } catch (Exception ex) {
             Log.e(LOG_TAG, ex.getMessage(), ex);
             sendExceptionMessage(ex);
+
         }
         return new Pair<>(registeredUser, authToken);
     }

@@ -37,6 +37,6 @@ public class GetFollowersCountTask extends GetCountTask {
             Log.e(LOG_TAG, ex.getMessage(), ex);
             sendExceptionMessage(ex);
         }
-        return -1; // Put here to satisfy the IDE, should never run though. If so, there's an error.
+        return -1; // Return a -1 if there's an error.
     }
 }
