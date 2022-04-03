@@ -54,6 +54,21 @@ public class StatusService {
 
         PostStatusResponse response = getStatusDAO().postStatus(request);
 
+        daoFactory.getQueueService().addStatusToQueue(request);
+
+        return response;
+    }
+
+    public PostStatusResponse postStatusGetFollowers(PostStatusRequest request) {
+        if(request.getStatus() == null) {
+            throw new RuntimeException("[BadRequest] Request needs to have a status");
+        }
+        if (!daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken())) {
+            throw new RuntimeException("[BadRequest] The current user session is no longer valid. PLease logout and login again.");
+        }
+
+        PostStatusResponse response = getStatusDAO().postStatus(request);
+
         List<String> followerAliases = daoFactory.getFollowsDAO().getAllFollowers(request.getStatus().getUser());
 
         daoFactory.getFeedDAO().addStatusToFeed(followerAliases, request.getStatus());

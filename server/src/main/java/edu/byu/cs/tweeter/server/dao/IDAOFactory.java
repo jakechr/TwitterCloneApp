@@ -7,4 +7,5 @@ public interface IDAOFactory {
     IFeedDAO getFeedDAO();
     IAuthTokenDAO getAuthTokenDAO();
     IImageDAO getImageDAO();
+    IQueueService getQueueService();
 }

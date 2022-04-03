@@ -5,6 +5,7 @@ import edu.byu.cs.tweeter.server.dao.IDAOFactory;
 import edu.byu.cs.tweeter.server.dao.IFeedDAO;
 import edu.byu.cs.tweeter.server.dao.IFollowDAO;
 import edu.byu.cs.tweeter.server.dao.IImageDAO;
+import edu.byu.cs.tweeter.server.dao.IQueueService;
 import edu.byu.cs.tweeter.server.dao.IStatusDAO;
 import edu.byu.cs.tweeter.server.dao.IUserDAO;
 
@@ -37,5 +38,10 @@ public class DynamoDAOFactory implements IDAOFactory {
     @Override
     public IImageDAO getImageDAO() {
         return new ImageDAOS3();
+    }
+
+    @Override
+    public IQueueService getQueueService() {
+        return new QueueServiceSQS();
     }
 }

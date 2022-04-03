@@ -171,7 +171,6 @@ public class FollowsDAODynamo extends BaseDAODynamo implements IFollowDAO {
         }
     }
 
-
     public FollowToggleResponse follow(FollowToggleRequest request, User currUser) {
         try {
             System.out.println("Adding a new item...");
