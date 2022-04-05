@@ -178,8 +178,10 @@ public class UserDAODynamo extends BaseDAODynamo implements IUserDAO {
 
         // Add each user into the TableWriteItems object
         for (User user : users) {
+            String password = "password";
+            String salt = getSalt();
             Item item = new Item().withPrimaryKey("user_alias", user.getAlias())
-                    .withString("password", "password").withString("salt", getSalt())
+                    .withString("password", getSecurePassword(password, salt)).withString("salt", salt)
                     .withString("first_name", user.getFirstName()).withString("last_name", user.getLastName())
                     .withString("image_url", user.getImageUrl()).withInt("followers_count", 0)
                     .withInt("following_count", 1);

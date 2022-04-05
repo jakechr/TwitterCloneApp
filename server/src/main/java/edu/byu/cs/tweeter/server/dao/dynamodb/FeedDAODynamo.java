@@ -30,21 +30,21 @@ import edu.byu.cs.tweeter.server.dao.IFeedDAO;
 
 
     @Override
-    public boolean addStatusToFeed(List<String> followerAliases, Status status) {
-        for(String userAlias : followerAliases) {
+    public boolean addStatusToFeed(List<User> followers, Status status) {
+        for(User user : followers) {
             try {
                 System.out.println("Adding a new status to feed...");
                 Gson gson = new Gson();
                 String userJson = gson.toJson(status.getUser());
                 PutItemOutcome outcome = table
-                        .putItem(new Item().withPrimaryKey("user_alias", userAlias, "timestamp", status.getDate())
+                        .putItem(new Item().withPrimaryKey("user_alias", user.getAlias(), "timestamp", status.getDate())
                                 .withString("message", status.getPost()).withList("mentions", status.getMentions())
                                 .withList("urls", status.getUrls()).withString("user", userJson));
 
                 System.out.println("PutItem succeeded:\n" + outcome.getPutItemResult().toString());
 
             } catch (Exception e) {
-                System.err.println("Unable to add item: " + status + " to feed for user: " + userAlias);
+                System.err.println("Unable to add item: " + status + " to feed for user: " + user.getAlias());
                 System.err.println(e.getMessage());
                 throw new RuntimeException("[DBError] postStatus failed when propagating to user feeds");
             }
