@@ -66,7 +66,7 @@ public class StatusService {
 
     public QueueFollowersResponse postStatusGetFollowers(PostStatusRequest request) {
         FollowersResponse followersResponse = null;
-        FollowersRequest followersRequest = new FollowersRequest(request.getAuthToken(), request.getStatus().getUser().getAlias(), 25, null);
+        FollowersRequest followersRequest = new FollowersRequest(request.getAuthToken(), request.getStatus().getUser().getAlias(), 500, null);
         QueueFollowersResponse queueFollowersResponse = null;
 
         do {

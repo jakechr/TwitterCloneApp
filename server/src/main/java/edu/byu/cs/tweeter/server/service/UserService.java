@@ -87,7 +87,7 @@ public class UserService {
 
     public static void main(String[] args) {
         List<User> usersToAdd = new ArrayList<>();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10000; i++) {
             String firstName = "Batch" + i;
             String lastName = "Test" + i;
             String userAlias = "@batch" + i;
