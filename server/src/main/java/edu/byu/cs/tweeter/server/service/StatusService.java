@@ -2,11 +2,16 @@ package edu.byu.cs.tweeter.server.service;
 
 import java.util.List;
 
+import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.net.request.FeedRequest;
+import edu.byu.cs.tweeter.model.net.request.FollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
+import edu.byu.cs.tweeter.model.net.request.QueueFollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.StoryRequest;
 import edu.byu.cs.tweeter.model.net.response.FeedResponse;
+import edu.byu.cs.tweeter.model.net.response.FollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.PostStatusResponse;
+import edu.byu.cs.tweeter.model.net.response.QueueFollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.StoryResponse;
 import edu.byu.cs.tweeter.server.dao.IDAOFactory;
 import edu.byu.cs.tweeter.server.dao.IStatusDAO;
@@ -59,21 +64,24 @@ public class StatusService {
         return response;
     }
 
-    public PostStatusResponse postStatusGetFollowers(PostStatusRequest request) {
-        if(request.getStatus() == null) {
-            throw new RuntimeException("[BadRequest] Request needs to have a status");
-        }
-        if (!daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken())) {
-            throw new RuntimeException("[BadRequest] The current user session is no longer valid. PLease logout and login again.");
-        }
+    public QueueFollowersResponse postStatusGetFollowers(PostStatusRequest request) {
+        FollowersResponse followersResponse = null;
+        FollowersRequest followersRequest = new FollowersRequest(request.getAuthToken(), request.getStatus().getUser().getAlias(), 25, null);
+        QueueFollowersResponse queueFollowersResponse = null;
 
-        PostStatusResponse response = getStatusDAO().postStatus(request);
+        do {
+            followersResponse = daoFactory.getFollowsDAO().getFollowers(followersRequest);
 
-        List<String> followerAliases = daoFactory.getFollowsDAO().getAllFollowers(request.getStatus().getUser());
+            QueueFollowersRequest queueFollowersRequest = new QueueFollowersRequest(request.getAuthToken(), followersResponse.getFollowers());
+            queueFollowersResponse = daoFactory.getQueueService().addFollowersToQueue(queueFollowersRequest);
 
-        daoFactory.getFeedDAO().addStatusToFeed(followerAliases, request.getStatus());
+            if (followersResponse.getHasMorePages()) {
+                followersRequest.setLastItem(followersResponse.getFollowers().get(24).getAlias());
+            }
 
-        return response;
+        } while (followersResponse.getHasMorePages());
+
+        return queueFollowersResponse;
     }
 
     private IStatusDAO getStatusDAO() {

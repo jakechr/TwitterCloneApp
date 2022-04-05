@@ -1,5 +1,8 @@
 package edu.byu.cs.tweeter.server.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.GetUserRequest;
@@ -79,6 +82,22 @@ public class UserService {
         // Don't authenticate so that the user can logout and refresh their session if their authToken
         // is expired.
         return daoFactory.getAuthTokenDAO().logout(request, true);
+    }
+
+
+    public static void main(String[] args) {
+        List<User> usersToAdd = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            String firstName = "Batch" + i;
+            String lastName = "Test" + i;
+            String userAlias = "@batch" + i;
+            String imageUrl = "https://tweeterapp340.s3.amazonaws.com/%40l";
+            User user = new User(firstName, lastName, userAlias, imageUrl);
+            usersToAdd.add(user);
+        }
+
+        IDAOFactory daoFactory = new DynamoDAOFactory();
+        daoFactory.getUserDAO().addUserBatch(usersToAdd);
     }
 
     private IUserDAO getUserDao() {

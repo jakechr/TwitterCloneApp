@@ -1,5 +1,8 @@
 package edu.byu.cs.tweeter.server.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.FollowToggleRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowersRequest;
@@ -17,6 +20,7 @@ import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.LogoutResponse;
 import edu.byu.cs.tweeter.server.dao.IDAOFactory;
 import edu.byu.cs.tweeter.server.dao.IFollowDAO;
+import edu.byu.cs.tweeter.server.dao.dynamodb.DynamoDAOFactory;
 
 /**
  * Contains the business logic for getting the users a user is following.
@@ -135,6 +139,21 @@ public class FollowService {
         }
 
         return getFollowDAO().isFollower(request);
+    }
+
+    public static void main(String[] args) {
+        List<User> usersToAdd = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            String firstName = "Batch" + i;
+            String lastName = "Test" + i;
+            String userAlias = "@batch" + i;
+            String imageUrl = "https://tweeterapp340.s3.amazonaws.com/%40l";
+            User user = new User(firstName, lastName, userAlias, imageUrl);
+            usersToAdd.add(user);
+        }
+
+        IDAOFactory daoFactory = new DynamoDAOFactory();
+        daoFactory.getFollowsDAO().addFollowerBatch(usersToAdd);
     }
 
     /**

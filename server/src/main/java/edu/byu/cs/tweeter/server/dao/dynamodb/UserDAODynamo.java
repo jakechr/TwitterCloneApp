@@ -15,6 +15,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -170,7 +171,6 @@ public class UserDAODynamo extends BaseDAODynamo implements IUserDAO {
         }
     }
 
-    @Override
     public void addUserBatch(List<User> users) {
 
         // Constructor for TableWriteItems takes the name of the table, which I have stored in TABLE_USER
@@ -182,7 +182,7 @@ public class UserDAODynamo extends BaseDAODynamo implements IUserDAO {
                     .withString("password", "password").withString("salt", getSalt())
                     .withString("first_name", user.getFirstName()).withString("last_name", user.getLastName())
                     .withString("image_url", user.getImageUrl()).withInt("followers_count", 0)
-                    .withInt("following_count", 0);
+                    .withInt("following_count", 1);
             items.addItemToPut(item);
 
             // 25 is the maximum number of items allowed in a single batch write.
