@@ -75,9 +75,10 @@ public class StatusService {
             QueueFollowersRequest queueFollowersRequest = new QueueFollowersRequest(request.getAuthToken(), followersResponse.getFollowers());
             queueFollowersResponse = daoFactory.getQueueService().addFollowersToQueue(queueFollowersRequest);
 
-            if (followersResponse.getHasMorePages()) {
-                followersRequest.setLastItem(followersResponse.getFollowers().get(24).getAlias());
-            }
+            String lastItem = (followersResponse.getFollowers().size() > 0) ?
+                    followersResponse.getFollowers().get(followersResponse.getFollowers().size() - 1).getAlias() : null;
+
+            followersRequest.setLastItem(lastItem);
 
         } while (followersResponse.getHasMorePages());
 
