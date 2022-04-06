@@ -126,8 +126,6 @@ public class FollowsDAODynamo extends BaseDAODynamo implements IFollowDAO {
                 String lastName = item.getString("follower_last_name");
                 String handle = item.getString("follower_handle");
                 String image = item.getString("follower_image");
-                System.out.println(item.getString("follower_handle") + ": " +
-                        item.getString("follower_first_name") + " " + item.getString("follower_last_name"));
 
                 followers.add(new User(firstName, lastName, handle, image));
             }

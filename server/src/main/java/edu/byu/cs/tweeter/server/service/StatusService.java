@@ -68,6 +68,7 @@ public class StatusService {
         FollowersResponse followersResponse = null;
         FollowersRequest followersRequest = new FollowersRequest(request.getAuthToken(), request.getStatus().getUser().getAlias(), 500, null);
         QueueFollowersResponse queueFollowersResponse = null;
+        int counter = 1;
 
         do {
             followersResponse = daoFactory.getFollowsDAO().getFollowers(followersRequest);
@@ -79,6 +80,8 @@ public class StatusService {
                     followersResponse.getFollowers().get(followersResponse.getFollowers().size() - 1).getAlias() : null;
 
             followersRequest.setLastItem(lastItem);
+            System.out.println("Sent the " + counter + " batch to be processed in the UpdateFeedSQSFeed.");
+            counter++;
 
         } while (followersResponse.getHasMorePages());
 

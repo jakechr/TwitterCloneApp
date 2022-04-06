@@ -36,6 +36,7 @@ import edu.byu.cs.tweeter.server.dao.IFeedDAO;
 
     @Override
     public boolean addStatusToFeed(List<User> followers, Status status) {
+        int counter = 0;
         for(User user : followers) {
             try {
                 System.out.println("Adding a new status to feed...");
@@ -45,8 +46,7 @@ import edu.byu.cs.tweeter.server.dao.IFeedDAO;
                         .putItem(new Item().withPrimaryKey("user_alias", user.getAlias(), "timestamp", status.getDate())
                                 .withString("message", status.getPost()).withList("mentions", status.getMentions())
                                 .withList("urls", status.getUrls()).withString("user", userJson));
-
-                System.out.println("PutItem succeeded:\n" + outcome.getPutItemResult().toString());
+                counter++;
 
             } catch (Exception e) {
                 System.err.println("Unable to add item: " + status + " to feed for user: " + user.getAlias());
@@ -55,6 +55,7 @@ import edu.byu.cs.tweeter.server.dao.IFeedDAO;
             }
         }
 
+        System.out.println("Added the feed for " + counter + " users");
         return true;
     }
 
