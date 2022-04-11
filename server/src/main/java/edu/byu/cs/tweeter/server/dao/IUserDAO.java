@@ -6,6 +6,8 @@ import com.amazonaws.services.dynamodbv2.document.KeyAttribute;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.UpdateItemOutcome;
 
+import java.util.List;
+
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersCountRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingCountRequest;
@@ -33,4 +35,6 @@ public interface IUserDAO {
     boolean incrementDecrementFollowCount(String userAlias, boolean increment, String attributeToChange);
 
     boolean checkIfUserInDB(String userAlias);
+
+    void addUserBatch(List<User> users);
 }

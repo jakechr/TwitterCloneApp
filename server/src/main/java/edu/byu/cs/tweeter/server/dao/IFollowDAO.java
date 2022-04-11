@@ -39,4 +39,5 @@ public interface IFollowDAO {
 
     List<String> getAllFollowers(User user);
 
+    void addFollowerBatch(List<User> users);
 }
