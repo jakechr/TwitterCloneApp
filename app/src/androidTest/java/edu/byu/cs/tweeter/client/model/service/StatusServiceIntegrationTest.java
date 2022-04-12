@@ -119,7 +119,7 @@ public class StatusServiceIntegrationTest {
      * asynchronous method eventually returns the same result as the ServerFacade.
      */
     @Test
-    public void testGetFollowees_validRequest_correctResponse() throws InterruptedException {
+    public void testGetStory_validRequest_correctResponse() throws InterruptedException {
         statusServiceSpy.loadMoreStoryItems(currentAuthToken, currentUser, 10, lastStatus, observer);
         awaitCountDownLatch();
 

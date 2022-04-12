@@ -35,7 +35,7 @@ public class UserService {
      * @param password
      * @param loginObserver
      */
-    public void login(String userAlias, String password, AuthenticationPresenter.AuthenticationObserver loginObserver) {
+    public void login(String userAlias, String password, SimpleItemObserver<User> loginObserver) {
         LoginTask loginTask = getLoginTask(userAlias, password, loginObserver);
         baseService.executeTask(loginTask);
     }
@@ -69,7 +69,7 @@ public class UserService {
      *
      * @return the instance.
      */
-    LoginTask getLoginTask(String userAlias, String password, AuthenticationPresenter.AuthenticationObserver loginObserver) {
+    LoginTask getLoginTask(String userAlias, String password, SimpleItemObserver<User> loginObserver) {
         return new LoginTask(userAlias, password, new AuthenticationHandler(loginObserver));
     }
 

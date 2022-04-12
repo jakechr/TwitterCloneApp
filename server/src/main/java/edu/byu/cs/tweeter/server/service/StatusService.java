@@ -1,8 +1,5 @@
 package edu.byu.cs.tweeter.server.service;
 
-import java.util.List;
-
-import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.net.request.FeedRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
@@ -93,7 +90,7 @@ public class StatusService {
         return new QueueFollowersResponse(true);
     }
 
-    private IStatusDAO getStatusDAO() {
+    public IStatusDAO getStatusDAO() {
         return daoFactory.getStatusDAO();
     }
 }
