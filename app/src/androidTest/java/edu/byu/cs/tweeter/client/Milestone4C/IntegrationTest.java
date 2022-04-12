@@ -228,10 +228,11 @@ public class IntegrationTest {
         mainPresenterSpy.postStatus(lastStatus);
         awaitCountDownLatch();
 
+        Mockito.verify(postStatusViewSpy).displayInfoMessage("Successfully Posted!");
+
         statusServiceSpy.loadMoreStoryItems(currentAuthToken, currentUser, 10, null, observer);
         awaitCountDownLatch();
 
-        Mockito.verify(postStatusViewSpy).displayInfoMessage("Successfully Posted!");
         Assert.assertTrue(observer.isSuccess());
         Assert.assertNull(observer.getMessage());
         Assert.assertEquals(lastStatus, observer.getStatuses().get(observer.getStatuses().size() - 1));
