@@ -7,24 +7,19 @@ import org.mockito.Mockito;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.StatusService;
-import edu.byu.cs.tweeter.client.model.service.StatusServiceIntegrationTest;
 import edu.byu.cs.tweeter.client.model.service.UserService;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.observer.PagedObserver;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.observer.SimpleItemObserver;
-import edu.byu.cs.tweeter.client.model.service.backgroundTask.observer.SimpleNotificationObserver;
 import edu.byu.cs.tweeter.client.presenter.MainPresenter;
-import edu.byu.cs.tweeter.client.presenter.View.AuthenticationView;
 import edu.byu.cs.tweeter.client.presenter.View.MainView;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
-import edu.byu.cs.tweeter.util.FakeData;
 
 public class IntegrationTest {
 
@@ -35,8 +30,7 @@ public class IntegrationTest {
     private StatusService statusServiceSpy;
     private UserService userServiceSpy;
     private GetItemsObserver observer;
-    private AuthenticationObserver loginObserver;
-    private PostStatusObserver postStatusObserver;
+    private AuthenticationObserver loginObserverSpy;
 
     private MainPresenter mainPresenterSpy;
     private PostStatusView postStatusViewSpy;
@@ -60,11 +54,7 @@ public class IntegrationTest {
 
         // Setup an observer for the StatusService
         observer = new GetItemsObserver();
-        loginObserver = new AuthenticationObserver();
-        postStatusObserver = new PostStatusObserver();
-
-
-
+        loginObserverSpy = Mockito.spy(new AuthenticationObserver());
 
         // Prepare the countdown latch
         resetCountDownLatch();
@@ -163,31 +153,6 @@ public class IntegrationTest {
         }
     }
 
-    public class PostStatusObserver implements SimpleNotificationObserver {
-
-        private boolean success;
-        private String message;
-
-        @Override
-        public void handleSuccess() {
-            this.success = true;
-            this.message = null;
-            countDownLatch.countDown();
-            postStatusViewSpy.handlePostStatusSuccess();
-        }
-
-        @Override
-        public void handleError(String message) {
-            this.success = false;
-            this.message = message;
-            countDownLatch.countDown();
-        }
-
-        public boolean isSuccess() {
-            return success;
-        }
-    }
-
     public class PostStatusView implements MainView {
         @Override
         public void displayErrorMessage(String message) {
@@ -252,9 +217,11 @@ public class IntegrationTest {
      * asynchronous method eventually returns the same result as the ServerFacade.
      */
     @Test
-    public void testGetStory_validRequest_correctResponse() throws InterruptedException {
-        userServiceSpy.login("@jake", "password", loginObserver);
+    public void testPostStatus_validRequest_correctResponse() throws InterruptedException {
+        userServiceSpy.login("@jake", "password", loginObserverSpy);
         awaitCountDownLatch();
+
+        Mockito.verify(loginObserverSpy).handleSuccess(Mockito.any());
 
         currentAuthToken = Cache.getInstance().getCurrUserAuthToken();
 
@@ -264,7 +231,7 @@ public class IntegrationTest {
         statusServiceSpy.loadMoreStoryItems(currentAuthToken, currentUser, 10, null, observer);
         awaitCountDownLatch();
 
-        Mockito.verify(postStatusViewSpy).handlePostStatusSuccess();
+        Mockito.verify(postStatusViewSpy).displayInfoMessage("Successfully Posted!");
         Assert.assertTrue(observer.isSuccess());
         Assert.assertNull(observer.getMessage());
         Assert.assertEquals(lastStatus, observer.getStatuses().get(observer.getStatuses().size() - 1));

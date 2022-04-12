@@ -217,6 +217,7 @@ public class MainPresenter extends BasePresenter<MainView> {
         @Override
         public void handleSuccess() {
             view.clearInfoMessage();
+            view.displayInfoMessage("Successfully Posted!");
             view.handlePostStatusSuccess();
         }
     }
