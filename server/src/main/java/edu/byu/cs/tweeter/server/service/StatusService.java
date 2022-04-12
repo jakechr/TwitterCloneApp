@@ -10,6 +10,7 @@ import edu.byu.cs.tweeter.model.net.response.FollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.PostStatusResponse;
 import edu.byu.cs.tweeter.model.net.response.QueueFollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.StoryResponse;
+import edu.byu.cs.tweeter.server.dao.IAuthTokenDAO;
 import edu.byu.cs.tweeter.server.dao.IDAOFactory;
 import edu.byu.cs.tweeter.server.dao.IStatusDAO;
 
@@ -26,7 +27,7 @@ public class StatusService {
         } else if(request.getLimit() <= 0) {
             throw new RuntimeException("[BadRequest] Request needs to have a positive limit");
         }
-        if (!daoFactory.getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken())) {
+        if (!getAuthTokenDAO().authenticateCurrUserSession(request.getAuthToken())) {
             throw new RuntimeException("[BadRequest] The current user session is no longer valid. PLease logout and login again.");
         }
 
@@ -92,5 +93,9 @@ public class StatusService {
 
     public IStatusDAO getStatusDAO() {
         return daoFactory.getStatusDAO();
+    }
+
+    public IAuthTokenDAO getAuthTokenDAO() {
+        return daoFactory.getAuthTokenDAO();
     }
 }
